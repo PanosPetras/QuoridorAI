@@ -150,19 +150,20 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		int moves;
 		if(p == NULL){
 			moves = 1;
-		}
-		if(isInteger(p)){
+		} else if (isInteger(p)){
 			moves = atoi(p);
-			if(moves > len(*History)){
-				printf("? cannot undo\n\n");
-			} else {
-				for(int i = 0; i < moves; i++){
-					Undo(*Board, *size, white, black, History);
-				}
-				printf("=\n\n");
-			}
 		} else {
 			printf("? invalid syntax\n\n");
+			return 0;
+		}
+
+		if(moves > len(*History)){
+			printf("? cannot undo\n\n");
+		} else {
+			for(int i = 0; i < moves; i++){
+				Undo(*Board, *size, white, black, History);
+			}
+			printf("=\n\n");
 		}
 
 	} else if(!strcmp(Input, "winner")) {

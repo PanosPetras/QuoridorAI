@@ -114,11 +114,7 @@ void Remove(Listptr* p, int index){
         *p = save;
     } else {
         rem = *p;
-        if(len(*p) > 1){
-            *p = (*p)->next;
-        } else {
-            *p = NULL;
-        }
+        *p = (*p)->next;
     }
 
     free(rem->data);

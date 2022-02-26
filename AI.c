@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int PathScore(char* Board, int size, char* player, struct player white, struct player black, int depth, int* Scores){
+int PathScore(char* Board, int size, char* player, struct player white, struct player black, int depth, int* Scores, Listptr History){
     lowercase(player);
 
     if(strcmp(player, "white") && strcmp(player, "black")){
@@ -30,6 +30,8 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
                 *(Scores + i * size + j) = 'e';
             }
         }
+
+        History = NULL;
         
     }
 
@@ -38,21 +40,24 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
     if(*(Scores + p->x * size + p->y) == 'e'){
         *(Scores + p->x * size + p->y) = 's';
 
-        int score[4]; 
+        int score[4], status;
+        char ver[4];
         struct player temp;
+        struct vertex v = PlayerToVertex(*p, size), t;
         for (int i = 0; i < 3; i += 2){
             for (int j = 0; j < 3; j += 2){
-                temp = *p;
-                p->x = p->x - 1 + i;
-                p->y = p->y - 1 + j;
+                t.x = v.x - 1 + i;
+                t.y = v.y - 1 + j;
+                VertexToString(t, size, ver);
+                status = PlayMove(Board, size, player, ver, &white, &black, &History);
+                
+                if(status == 1){
+                    score[i / 2] = PathScore(Board, size, player, white, black, depth + 1, Scores, History);
 
-                if(*(Board + d * (p->y + temp.y) + (p->x + temp.x)) != '-' && *(Board + d * (p->y + temp.y) + (p->x + temp.x)) != '|'){
-                    score[i / 2 + j / 2] = PathScore(Board, size, player, white, black, depth + 1, Scores);
+                    Undo(Board, size, &white, &black, &History);
                 } else {
                     score[i / 2 + j / 2] = -1;
                 }
-
-                *p = temp;
             }
         }
         *(Scores + p->x * size + p->y) = score[0];

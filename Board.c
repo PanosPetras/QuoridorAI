@@ -194,7 +194,7 @@ int PlayWall(char* Board, int size, char* player, char* vertex, char* alignment,
     lowercase(alignment);
     int d = size * 2 - 1;
 
-    printf("PathScore white: %d\nPathScore black: %d", PathScore(Board, size, "white", *white, *black, 0, NULL), PathScore(Board, size, "black", *white, *black, 0, NULL));
+    printf("PathScore white: %d\nPathScore black: %d", PathScore(Board, size, "white", *white, *black, 0, NULL, NULL), PathScore(Board, size, "black", *white, *black, 0, NULL, NULL));
     if(strcmp(player, "white") && strcmp(player, "black")){
         return -2;
     } else if(strcmp(alignment, "horizontal") && strcmp(alignment, "vertical")){
@@ -203,7 +203,7 @@ int PlayWall(char* Board, int size, char* player, char* vertex, char* alignment,
         return -1;
     } else if((v.x < 0 || v.x > size - 2) || (v.y < 0 || v.y > size - 2)){
         return 0;
-    } else if(PathScore(Board, size, "white", *white, *black, 0, NULL) == -1 || PathScore(Board, size, "black", *white, *black, 0, NULL) == -1){
+    } else if(PathScore(Board, size, "white", *white, *black, 0, NULL, NULL) == -1 || PathScore(Board, size, "black", *white, *black, 0, NULL, NULL) == -1){
         return 0;
     } else {
         int orientation = !strcmp(alignment, "vertical") ? 1 : 0;
@@ -260,7 +260,6 @@ int Undo(char* Board, int size, struct player* white, struct player* black, List
 		char* p = strtok(NULL, " ");
 		char* before = strtok(NULL, " ");
 		char* now = strtok(NULL, " ");
-        printf("before: %s\nnow: %s\n", before, now);
 
         struct vertex vbef = StringToVertex(before, size);
         struct vertex vnow = StringToVertex(now, size);
@@ -279,8 +278,8 @@ int Undo(char* Board, int size, struct player* white, struct player* black, List
         pp->x = vbef.x;
         pp->y = vbef.y;
 
-        *(Board + d * (vbef.y * 2) + (vbef.x * 2)) = 'Q';
-        *(Board + d * (vnow.x * 2) + (vnow.x * 2)) = 'L';
+        *(Board + d * (vbef.y * 2) + (vbef.x * 2)) = l;
+        *(Board + d * (vnow.y * 2) + (vnow.x * 2)) = ' ';
     } else if(!strcmp(arg, "w")){
 		char* p = strtok(NULL, " ");
 		char* ver = strtok(NULL, " ");

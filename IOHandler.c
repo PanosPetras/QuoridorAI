@@ -66,7 +66,7 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		if(token != NULL){
 			if(isInteger(token)){
 				*size = atoi(token);
-				if(*size % 2){
+				if(*size % 2 && *size <= 25 && *size >= 3){
 					InitBoard(*size, Board);
 					InitPlayers(white, black, *size);
 					printf("=\n\n");
@@ -150,17 +150,19 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		int moves;
 		if(p == NULL){
 			moves = 1;
-		} else {
-			int moves = atoi(p);
 		}
-
-		if(moves > len(*History)){
-			printf("? cannot undo\n\n");
-		} else {
-			for(int i = 0; i < moves; i++){
-				Undo(*Board, *size, white, black, History);
+		if(isInteger(p)){
+			moves = atoi(p);
+			if(moves > len(*History)){
+				printf("? cannot undo\n\n");
+			} else {
+				for(int i = 0; i < moves; i++){
+					Undo(*Board, *size, white, black, History);
+				}
+				printf("=\n\n");
 			}
-			printf("=\n\n");
+		} else {
+			printf("? invalid syntax\n\n");
 		}
 
 	} else if(!strcmp(Input, "winner")) {

@@ -50,6 +50,8 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
                     score[k] = PathScore(Board, size, player, white, black, depth + 1, Scores, History);
 
                     Undo(Board, size, &white, &black, &History);
+                } else if(status == -3){
+                    score[k] = 700;
                 } else {
                     score[k] = -1;
                 }
@@ -105,9 +107,19 @@ int AI_IsMoveValid(char* Board, int size, char* player, char* vertex, struct pla
         int distx = abs(pp->x - v.x);
         int disty = abs(pp->y - v.y);
         if(!((distx == 0 && disty == 1) || (distx == 1 && disty == 0))){
-            if((distx == 0 && disty == 2) || (distx == 2 && disty == 0)){
-                struct vertex v1 = {.x = (pp->x + v.x) / 2, .y = (pp->y + v.y) / 2};
-                if(!IsOnVertex(*ep, v1)){
+            if((distx == 0 && disty == 2) || (distx == 2 && disty == 0) || (distx == 1 && disty == 1)){
+                int x = v.x < pp->x ? v.x : pp->x;
+                int y = v.y < pp->y ? v.y : pp->y;
+                int flag = 0;
+                for (int i = 0; i < 2; i++){
+                    for(int j = 0; j < 2; j++){
+                        struct vertex v1 = {.x = x + i, .y = y + j};
+                        if(IsOnVertex(*ep, v1)){
+                            flag = 1;
+                        }
+                    }
+                }
+                if(!flag){
                     return 0;
                 }
             } else {
@@ -152,6 +164,24 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
             }
         }
         struct vertex v = {.x = x, .y = y};
+        if(max >= 700){
+            for (int i = 0; i < 2; i ++){
+                for (int j = 0; j < 3; j += 2){
+                    tx = v.x + !i * (-1 + j);
+                    ty = v.y + i * (-1 + j);
+                    struct vertex d = {.x = tx, .y = ty};
+                    VertexToString(d, size, ver);
+                    if(AI_IsMoveValid(Board, size, player, ver, white, black) == 1){
+                        num = *(pl->Scores + ty * size + tx);
+                        if(num < max && num >= 0){
+                            max = num;
+                            v.x = tx;
+                            v.y = ty;
+                        }
+                    }
+                }
+            }
+        }
         VertexToString(v, size, ver);
         PlayMove(Board, size, player, ver, white, black, History);
 

@@ -5,6 +5,7 @@
         "board.h": "c",
         "iohandler.h": "c",
         "string.h": "c",
-        "list.h": "c"
+        "list.h": "c",
+        "typeinfo": "c"
     }
 }

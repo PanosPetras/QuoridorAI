@@ -129,6 +129,9 @@ void PrintList(Listptr p){
 }
 
 void FreeList(Listptr* p){
+    if(*p == NULL){
+        return;
+    }
     for (int i = len(*p) - 1; i >= 0; i--){
         Remove(p, i);
     }    

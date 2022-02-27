@@ -4,6 +4,8 @@
 struct player{
     int x, y;
     int walls;
+    int MinScore;
+    int* Scores;
 };
 
 struct vertex{

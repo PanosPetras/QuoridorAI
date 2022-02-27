@@ -2,8 +2,8 @@
 
 struct player;
 
-int PathScore(char*, int, char*, struct player, struct player, int, int*, Listptr);
+int PathScore(char*, int, char*, struct player, struct player, int, int**, Listptr);
 
-char* GenerateMove(char*, int, char*, struct player, struct player);
+void AI_GenerateMove(char*, int, char*, struct player*, struct player*, int, Listptr*, char*);
 
-char* Minimax(char*, int);
+char* Minimax(char*, int, char*, struct player, struct player, int);

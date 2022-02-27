@@ -156,7 +156,7 @@ int PlayMove(char* Board, int size, char* player, char* vertex, struct player* w
         return 0;
     } else { 
         if(IsOnVertex(*white, v) || IsOnVertex(*black, v)){
-            return 0;
+            return -3;
         }
         int distx = abs(pp->x - v.x);
         int disty = abs(pp->y - v.y);

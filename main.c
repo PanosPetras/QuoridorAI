@@ -10,7 +10,7 @@ int main(int argc, int* argv[]){
 	char* Board = NULL;
 	int size;
 
-	struct player p1, p2;
+	struct player p1 = {.Scores = NULL}, p2 = {.Scores = NULL};
 
 	Listptr History = NULL;
 
@@ -32,5 +32,11 @@ int main(int argc, int* argv[]){
 	}
 	if(History != NULL){
 		FreeList(&History);
+	}
+	if(p1.Scores != NULL){
+		free(p1.Scores);
+	}
+	if(p2.Scores != NULL){
+		free(p2.Scores);
 	}
 }

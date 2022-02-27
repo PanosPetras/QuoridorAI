@@ -5,3 +5,4 @@ default:
 	gcc -c List.c -O3
 	gcc -c IOHandler.c -O3
 	gcc -o Tiger_B AI.o Board.o IOHandler.o main.o List.o -O3
+	rm AI.o Board.o main.o List.o IOHandler.o

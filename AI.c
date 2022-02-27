@@ -6,8 +6,6 @@
 #include <stdio.h>
 
 int PathScore(char* Board, int size, char* player, struct player white, struct player black, int depth, int* Scores, Listptr History){
-    lowercase(player);
-
     int b;
     struct player* p;
     if(!strcmp(player, "white")){
@@ -36,27 +34,26 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
     if(*(Scores + p->y * size + p->x) == -10){
         *(Scores + p->y * size + p->x) = -20;
 
-        int score[4], status;
+        int score[4], status, k = 0;
         char ver[4];
         struct player temp;
         struct vertex v = PlayerToVertex(*p, size), t;
         VertexToString(v, size, ver);
-        printf("Player vertex: %s\n", ver);
         for (int i = 0; i < 2; i ++){
             for (int j = 0; j < 3; j += 2){
                 t.x = v.x + i * (-1 + j);
                 t.y = v.y + !i * (-1 + j);
                 VertexToString(t, size, ver);
                 status = PlayMove(Board, size, player, ver, &white, &black, &History);
-                printf("status: %d vertex string%s\n", status, ver);
                 
                 if(status == 1){
-                    score[i / 2] = PathScore(Board, size, player, white, black, depth + 1, Scores, History);
+                    score[k] = PathScore(Board, size, player, white, black, depth + 1, Scores, History);
 
                     Undo(Board, size, &white, &black, &History);
                 } else {
-                    score[i / 2 + j / 2] = -1;
+                    score[k] = -1;
                 }
+                k++;
             }
         }
         *(Scores + p->y * size + p->x) = 1000;
@@ -92,5 +89,13 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
 }
 
 char* GenerateMove(char* Board, int size, char* player, struct player white, struct player black){
+    struct player* pl,* en;
+    if(!strcmp(player, "white")){
+        pl = &white;
+        en = &black;
+    } else {
+        pl = &black;
+        en = &white;
+    }
 
 }

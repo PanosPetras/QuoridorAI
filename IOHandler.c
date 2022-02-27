@@ -69,6 +69,7 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 				if(*size % 2 && *size <= 25 && *size >= 3){
 					InitBoard(*size, Board);
 					InitPlayers(white, black, *size);
+					FreeList(History);
 					printf("=\n\n");
 				} else {
 					printf("? invalid size\n\n");
@@ -83,6 +84,7 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 	} else if(!strcmp(Input, "clear_board")) {
 		InitBoard(*size, Board);
 		InitPlayers(white, black, *size);
+		FreeList(History);
 		printf("=\n\n");
 
 	} else if(!strcmp(Input, "walls")) {

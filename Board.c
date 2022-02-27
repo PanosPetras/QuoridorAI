@@ -194,7 +194,7 @@ int PlayWall(char* Board, int size, char* player, char* vertex, char* alignment,
     lowercase(alignment);
     int d = size * 2 - 1;
 
-    printf("PathScore white: %d\n", PathScore(Board, size, "white", *white, *black));
+    printf("PathScore white: %d\n", PathScore(Board, size, "white", *white, *black, 0, NULL, NULL));
     if(strcmp(player, "white") && strcmp(player, "black")){
         return -2;
     } else if(strcmp(alignment, "horizontal") && strcmp(alignment, "vertical")){

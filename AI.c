@@ -170,26 +170,45 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
         }
         printf("\n");
     }
-    int max = 1000, x, y, num, tx, ty, res;
-    for (int i = 0; i < 2; i ++){
-        for (int j = 0; j < 3; j += 2){
-            tx = pl->x + !i * (-1 + j);
-            ty = pl->y + i * (-1 + j);
-            struct vertex v = {.x = tx, .y = ty};
-            VertexToString(v, size, ver);
-            if(AI_IsMoveValid(Board, size, player, ver, *white, *black) == 1){
-                num = Minimax(Board, size, player, *white, *black, 0, 1);
-                if(num < max && num >= 0){
-                    max = num;
-                    x = tx;
-                    y = ty;
+
+    //if(pl->MinScore < en->MinScore){
+        int max = 1000, x, y, num, tx, ty, res;
+        for (int i = 0; i < 2; i ++){
+            for (int j = 0; j < 3; j += 2){
+                tx = pl->x + !i * (-1 + j);
+                ty = pl->y + i * (-1 + j);
+                struct vertex v = {.x = tx, .y = ty};
+                VertexToString(v, size, ver);
+                res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
+                if(res == 1){
+                    num = *(pl->Scores + ty * size + tx);
+                    if(num < max && num >= 0){
+                        max = num;
+                        x = tx;
+                        y = ty;
+                    }
+                } else if(res == -3){
+                    struct vertex u = {.x = tx + !i * (-1 + j), .y = ty + i * (-1 + j)};
+                    VertexToString(u, size, ver);
+                    res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
+                    if(res == 1){
+                        num = *(pl->Scores + u.y * size + u.x);
+                        if(num < max && num >= 0){
+                            max = num;
+                            x = u.x;
+                            y = u.y;
+                        }
+                    }
                 }
             }
         }
-    }
-    struct vertex v = {.x = x, .y = y};
-    VertexToString(v, size, ver);
-    PlayMove(Board, size, player, ver, white, black, History);
+        struct vertex v = {.x = x, .y = y};
+        VertexToString(v, size, ver);
+        PlayMove(Board, size, player, ver, white, black, History);
+
+    // } else {
+
+    // }
 
     strcpy(move, ver);
 }
@@ -267,3 +286,5 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
 
     return max;
 }
+
+/*Problem: won't jump over player when there are no other options*/

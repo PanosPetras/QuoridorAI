@@ -10,7 +10,7 @@ int main(int argc, int* argv[]){
 	char* Board = NULL;
 	int size;
 
-	struct player p1 = {.Scores = NULL}, p2 = {.Scores = NULL};
+	struct player p1 = {.name = "white",.Scores = NULL}, p2 = {.name = "black",.Scores = NULL};
 
 	Listptr History = NULL;
 

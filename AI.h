@@ -6,4 +6,6 @@ int PathScore(char*, int, char*, struct player, struct player, int, int**, Listp
 
 void AI_GenerateMove(char*, int, char*, struct player*, struct player*, int, Listptr*, char*);
 
-char* Minimax(char*, int, char*, struct player, struct player, int);
+int AI_IsMoveValid(char*, int, char*, char*, struct player, struct player);
+
+int Minimax(char *, int, char *, struct player, struct player, int, int);

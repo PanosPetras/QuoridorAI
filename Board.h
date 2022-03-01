@@ -4,6 +4,7 @@
 struct player{
     int x, y;
     int walls;
+    char name[6];
     int MinScore;
     int* Scores;
 };

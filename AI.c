@@ -17,6 +17,10 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
     }
 
     if(depth == 0){
+        if(*Scores != NULL){
+            free(*Scores);
+            *Scores = NULL;
+        }
         *Scores = malloc(size * size * sizeof(int));
         for (int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
@@ -34,7 +38,7 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
     if(*(*Scores + p->y * size + p->x) == -10){
         *(*Scores + p->y * size + p->x) = -20;
 
-        int score[4], status, k = 0;
+        int score[4], status, k = 0, min = 1000, num;
         char ver[4];
         struct player temp;
         struct vertex v = PlayerToVertex(*p, size), t;
@@ -47,26 +51,23 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
                 status = PlayMove(Board, size, player, ver, &white, &black, &History);
                 
                 if(status == 1){
-                    score[k] = PathScore(Board, size, player, white, black, depth + 1, Scores, History);
+                    num = PathScore(Board, size, player, white, black, depth + 1, Scores, History);
 
                     Undo(Board, size, &white, &black, &History);
                 } else if(status == -3){
-                    score[k] = 200;
+                    num = 200;
                 } else {
-                    score[k] = -1;
+                    num = -1;
+                }
+                if(num < min && num >= 0){
+                    min = num;
                 }
                 k++;
             }
         }
-        *(*Scores + p->y * size + p->x) = 1000;
-        for (int i = 0; i < 4; i++){
-            if(score[i] < *(*Scores + p->y * size + p->x) && score[i] >= 0){
-                *(*Scores + p->y * size + p->x) = score[i];
-            }
-        }
 
-        if(*(*Scores + p->y * size + p->x) != 1000){
-            *(*Scores + p->y * size + p->x) = *(*Scores + p->y * size + p->x) + 1;
+        if(min != 1000){
+            *(*Scores + p->y * size + p->x) = min + 1;
         } else {
             *(*Scores + p->y * size + p->x) = -1;
         }
@@ -234,7 +235,7 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
         free(white.Scores);
         free(black.Scores);
 
-        return en->MinScore - pl->MinScore;
+        return res;
     }
     if(Winner(white, black, size) != NULL){
         if(!strcmp(player, Winner(white, black, size))){

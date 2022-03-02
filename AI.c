@@ -154,6 +154,8 @@ int AI_IsValidWall(char *Board, int size, char *player, char *vertex, char *alig
 }
 
 void AI_GenerateMove(char* Board, int size, char* player, struct player* white, struct player* black, int depth, Listptr* History, char* move){
+    white->MinScore = PathScore(Board, size, white->name, *white, *black, 0, &white->Scores, NULL);
+    black->MinScore = PathScore(Board, size, black->name, *white, *black, 0, &black->Scores, NULL);
     struct player *pl, *en;
     if(!strcmp(player, "white")){
         pl = white;

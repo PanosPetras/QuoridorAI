@@ -70,8 +70,6 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 					InitBoard(*size, Board);
 					InitPlayers(white, black, *size);
 					FreeList(History);
-					white->MinScore = PathScore(*Board, *size, "white", *white, *black, 0, &white->Scores, NULL);
-					black->MinScore = PathScore(*Board, *size, "black", *white, *black, 0, &black->Scores, NULL);
 					printf("=\n\n");
 				} else {
 					printf("? invalid size\n\n");
@@ -87,8 +85,6 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		InitBoard(*size, Board);
 		InitPlayers(white, black, *size);
 		FreeList(History);
-		white->MinScore = PathScore(*Board, *size, "white", *white, *black, 0, &white->Scores, NULL);
-		black->MinScore = PathScore(*Board, *size, "black", *white, *black, 0, &black->Scores, NULL);
 		printf("=\n\n");
 
 	} else if(!strcmp(Input, "walls")) {
@@ -111,8 +107,6 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		if(p != NULL && move != NULL){
 			int status = PlayMove(*Board, *size, p, move, white, black, History);
 			if(status == 1){
-				white->MinScore = PathScore(*Board, *size, "white", *white, *black, 0, &white->Scores, NULL);
-				black->MinScore = PathScore(*Board, *size, "black", *white, *black, 0, &black->Scores, NULL);
 				printf("=\n\n");
 			} else if(status == -2){
 				printf("? invalid syntax \n\n");
@@ -132,8 +126,6 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		if(p != NULL && move != NULL && alignment != NULL){
 			int status = PlayWall(*Board, *size, p, move, alignment, white, black, History);
 			if(status == 1){
-				white->MinScore = PathScore(*Board, *size, "white", *white, *black, 0, &white->Scores, NULL);
-				black->MinScore = PathScore(*Board, *size, "black", *white, *black, 0, &black->Scores, NULL);
 				printf("=\n\n");
 			} else if(status == -2){
 				printf("? invalid syntax \n\n");

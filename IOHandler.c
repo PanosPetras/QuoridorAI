@@ -58,6 +58,18 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		printf("\n");
 
 	} else if(!strcmp(Input, "quit")) {
+		if(*Board != NULL){
+			free(*Board);
+		}
+		if(*History != NULL){
+			FreeList(History);
+		}
+		if(white->Scores != NULL){
+			free(white->Scores);
+		}
+		if(black->Scores != NULL){
+			free(black->Scores);
+		}
 		printf("=\n\n");
 		return 1;
 

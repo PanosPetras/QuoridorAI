@@ -27,9 +27,6 @@ int main(int argc, int* argv[]){
 		fflush(stdout);
 	}
 
-	if(Board != NULL){
-		free(Board);
-	}
 	if(History != NULL){
 		FreeList(&History);
 	}

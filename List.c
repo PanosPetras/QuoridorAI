@@ -9,8 +9,7 @@ Listptr InitList(Listptr* p, char* data){
     }
     (*p)->next = NULL;
 
-    (*p)->data = malloc(strlen(data) * sizeof(char));
-    strcpy((*p)->data, data);
+    memcpy((*p)->data, data, 30);
 
     return *p;
 }
@@ -60,8 +59,7 @@ void InsertAtStart(Listptr* p, char* data){
     listnode* l = malloc(sizeof(listnode));
     l->next = *p;
 
-    l->data = malloc(strlen(data) * sizeof(char));
-    strcpy(l->data, data);
+    memcpy(l->data, data, 30);
 
     *p = l;
 }
@@ -75,14 +73,12 @@ void InsertAtEnd(Listptr* p, char* data){
         it->next = malloc(sizeof(listnode));
         it->next->next = NULL;
 
-        it->next->data = malloc(strlen(data) * sizeof(char));
-        strcpy(it->next->data, data);
+        memcpy(it->next->data, data, 30);
     } else {
         listnode* l = malloc(sizeof(listnode));
         l->next = NULL;
 
-        l->data = malloc(strlen(data) * sizeof(char));
-        strcpy(l->data, data);
+        memcpy(l->data, data, 30);
 
         *p = l;
     }
@@ -117,7 +113,6 @@ void Remove(Listptr* p, int index){
         *p = (*p)->next;
     }
 
-    free(rem->data);
     free(rem);
 }
 

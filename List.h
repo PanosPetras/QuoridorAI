@@ -4,7 +4,7 @@
 typedef struct node* Listptr;
 
 typedef struct node{
-    char* data;
+    char data[30];
     Listptr next;
 } listnode;
 

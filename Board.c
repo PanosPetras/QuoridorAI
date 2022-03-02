@@ -160,9 +160,16 @@ int PlayMove(char* Board, int size, char* player, char* vertex, struct player* w
         }
         int distx = abs(pp->x - v.x);
         int disty = abs(pp->y - v.y);
-        if((distx == 0 && disty == 2) || (distx == 2 && disty == 0)){
-            struct vertex v1 = {.x = (pp->x + v.x) / 2, .y = (pp->y + v.y) / 2};
-            if(!IsOnVertex(*ep, v1)){
+        if(!((distx == 0 && disty == 1) || (distx == 1 && disty == 0))){
+            if((distx == 0 && disty == 2) || (distx == 2 && disty == 0)){
+                struct vertex v1 = {.x = (pp->x + v.x) / 2, .y = (pp->y + v.y) / 2};
+                if(!IsOnVertex(*ep, v1)){
+                    return 0;
+                }
+                if(*(Board + d * (ep->y + v.y) + (ep->x + v.x)) == '-' || *(Board + d * (ep->y + v.y) + (ep->x + v.x)) == '|'){
+                    return 0;
+                }
+            } else {
                 return 0;
             }
         }

@@ -336,7 +336,7 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
     Listptr History = NULL;
     int d = size * 2 - 1;
 
-    int max = IsMinimizer ? -1000 : 1000, num, res;
+    int max = IsMinimizer ? 1000 : -1000, num, res;
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 3; j += 2) {
             struct vertex v = {.x = pl->x + i * (-1 + j), .y = pl->y + !i * (-1 + j)};
@@ -376,5 +376,3 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
 
     return max;
 }
-
-/*Problem: won't jump over player when there are no other options*/

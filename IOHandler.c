@@ -155,7 +155,7 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 		if(*Board == NULL){
 			printf("? empty board\n\n");
 		} else if(token != NULL){
-			if(!strcmp(token, "white") || !strcmp(token, "black")){
+			if(!strcmp(token, "white") || !strcmp(token, "black") || !strcmp(token, "w") || !strcmp(token, "b")){
 			 	char res[6] = "";
 			 	AI_GenerateMove(*Board, *size, token, white, black, 0, History, res);
 			 	printf("= %s\n\n", res);

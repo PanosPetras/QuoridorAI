@@ -120,13 +120,6 @@ int Astar(char* Board, int size, struct vertex start, int goal){
         if(current.y == goal){
             int res = len(CameFrom);
             struct vertex v1, v2;
-            for(int i = 1; i < len(CameFrom); i++){
-                v1 = StringToVertex(get(CameFrom, i), size);
-                v2 = StringToVertex(get(CameFrom, i - 1), size);
-                if(!((abs(v1.x - v2.x) == 1 && abs(v1.y - v2.y) == 0) || (abs(v1.x - v2.x) == 0 && abs(v1.y - v2.y) == 1))){
-                    Remove(&CameFrom, i);
-                }
-            }
             FreeList(&openSet);
             FreeList(&CameFrom);
             free(gScore);
@@ -257,7 +250,8 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
     //black->MinScore = PathScore(Board, size, black->name, *white, *black, 0, &black->Scores, NULL);
     int b;
     struct player *pl, *en;
-    if(!strcmp(player, "white")){
+    lowercase(player);
+    if(!strcmp(player, "white") || !strcmp(player, "w")){
         pl = white;
         en = black;
         b = 0;
@@ -267,13 +261,6 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
         b = 1;
     }
     char ver[4] = "";
-        
-    // for (int i = 0; i < size; i++){
-    //     for(int j = 0; j < size; j++){
-    //         printf("%d|", *(pl->Scores + i * size + j));
-    //     }
-    //     printf("\n");
-    // }
 
     //if(pl->MinScore < en->MinScore){
         int max = 1000, x, y, num, tx, ty, res;
@@ -330,13 +317,10 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
     }
 
     if (depth >= 5){
-        white.MinScore = PathScore(Board, size, white.name, white, black, 0, &white.Scores, NULL);
-        black.MinScore = PathScore(Board, size, black.name, white, black, 0, &black.Scores, NULL);
+        white.MinScore = Astar(Board, size, PlayerToVertex(white), 0);
+        black.MinScore = Astar(Board, size, PlayerToVertex(black), size - 1);
 
         int res = en->MinScore - pl->MinScore;
-
-        free(white.Scores);
-        free(black.Scores);
 
         return res;
     }

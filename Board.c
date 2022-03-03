@@ -134,10 +134,10 @@ int PlayMove(char* Board, int size, char* player, char* vertex, struct player* w
     struct player* ep;
     char l;
 
-    if(strcmp(player, "white") && strcmp(player, "black")){
+    if(strcmp(player, "white") && strcmp(player, "black") && strcmp(player, "w") && strcmp(player, "b")){
         return -2;
     } else {
-        if(!strcmp(player, "white")){
+        if(!strcmp(player, "white") || !strcmp(player, "w")){
             pp = white;
             ep = black;
             l = 'W';
@@ -197,16 +197,16 @@ int PlayWall(char* Board, int size, char* player, char* vertex, char* alignment,
     lowercase(alignment);
     int d = size * 2 - 1;
 
-    if(strcmp(player, "white") && strcmp(player, "black")){
+    if(strcmp(player, "white") && strcmp(player, "black") && strcmp(player, "w") && strcmp(player, "b")){
         return -2;
-    } else if(strcmp(alignment, "horizontal") && strcmp(alignment, "vertical")){
+    } else if(strcmp(alignment, "horizontal") && strcmp(alignment, "vertical") && strcmp(alignment, "h") && strcmp(alignment, "v")){
         return -2;
     } else if(Board == NULL){
         return -1;
     } else if((v.x < 0 || v.x > size - 2) || (v.y < 0 || v.y > size - 2)){
         return 0;
     } else {
-        int orientation = !strcmp(alignment, "vertical") ? 1 : 0;
+        int orientation = !strcmp(alignment, "vertical") || !strcmp(alignment, "v") ? 1 : 0;
         for(int i = 0; i < 3; i++){
             if(*(Board + d * (v.y * 2 + i * orientation + 1 * !orientation) + v.x * 2 + i * !orientation + 1 * orientation) == '-' ||
             *(Board + d * (v.y * 2 + i * orientation + 1 * !orientation) + v.x * 2 + i * !orientation + 1 * orientation) == '|'){
@@ -214,7 +214,7 @@ int PlayWall(char* Board, int size, char* player, char* vertex, char* alignment,
             }
         }
         char l;
-        if(!strcmp(player, "white")){
+        if(!strcmp(player, "white") || !strcmp(player, "w")){
             if(white->walls <= 0){
                 return 0;
             }

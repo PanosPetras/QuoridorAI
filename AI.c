@@ -100,10 +100,10 @@ int Astar(char* Board, int size, struct vertex start, int goal){
             *(fScore + j * size + i) = 10000;
         }
     }
-    *(fScore + start.y * size + start.x) = size - 1;
+    *(fScore + start.y * size + start.x) = size - 1 - abs(start.y - size);
 
     struct vertex current;
-    char ver[4];
+    char ver[4], ver2[4];
     while (openSet != NULL){
         current = StringToVertex(openSet->data, size);
         int min = *(fScore + current.y * size + current.x);
@@ -119,7 +119,7 @@ int Astar(char* Board, int size, struct vertex start, int goal){
         
         if(current.y == goal){
             int res = len(CameFrom);
-            struct vertex v1, v2;
+            
             FreeList(&openSet);
             FreeList(&CameFrom);
             free(gScore);
@@ -134,19 +134,21 @@ int Astar(char* Board, int size, struct vertex start, int goal){
         for (int i = 0; i < 2; i ++){
             for (int j = 0; j < 3; j += 2){
                 struct vertex t = {.x = current.x + i * (-1 + j), .y = current.y + !i * (-1 + j)};
-                if(t.x >= 0 && t.x < size && t.y >= 0 && t.y < size){
+                if(t.x >= 0 && t.x < size && t.y >= 0 && t.y < size && *(Board + (2 * size - 1) * (current.y + t.y) + (current.x + t.x)) == ' '){
                     VertexToString(t, size, ver);
-                    int tentative_gScore = *(gScore + current.y * size + current.x) + t.x + abs(t.y - goal);
+                    int tentative_gScore = *(gScore + current.y * size + current.x) + 1;
                     if(tentative_gScore < *(gScore + t.y * size + t.x)){
                         if(flag == 0){
-                            InsertAtEnd(&CameFrom, ver);
+                            VertexToString(t, size, ver2);
+                            InsertAtEnd(&CameFrom, ver2);
                             flag = 1;
                         } else {
+                            VertexToString(t, size, ver2);
                             Remove(&CameFrom, -1);
-                            InsertAtEnd(&CameFrom, ver);
+                            InsertAtEnd(&CameFrom, ver2);
                         }
                         *(gScore + t.y * size + t.x) = tentative_gScore;
-                        *(fScore + t.y * size + t.x) = tentative_gScore + (size - 1 - abs(t.y - goal));
+                        *(fScore + t.y * size + t.x) = tentative_gScore + abs(t.y - goal);
                         if(find(openSet, ver) == -1){
                             InsertAtEnd(&openSet, ver);
                         } 
@@ -272,10 +274,12 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                 VertexToString(v, size, ver);
                 res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
                 if(res == 1){
-                    //num = *(pl->Scores + ty * size + tx);
                     num = Astar(Board, size, v, size * b - 1 * b);
+                    // PlayMove(Board, size, player, ver, white, black, History);
+                    // num = Minimax(Board, size, player, *white, *black, 0, 1);
+                    // Undo(Board, size, white, black, History);
                     printf("x %d y %d num %d\n", v.x, v.y , num);
-                    if(num < max && num >= 0){
+                    if(num < max){
                         max = num;
                         x = tx;
                         y = ty;
@@ -286,6 +290,9 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                     res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
                     if(res == 1){
                         num = Astar(Board, size, u, size * b - 1 * b);
+                        // PlayMove(Board, size, player, ver, white, black, History);
+                        // num = Minimax(Board, size, player, *white, *black, 0, 1);
+                        // Undo(Board, size, white, black, History);
                         if(num < max && num >= 0){
                             max = num;
                             x = u.x;
@@ -308,7 +315,7 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
 
 int Minimax(char *Board, int size, char *player, struct player white, struct player black, int depth, int IsMinimizer){
     struct player *pl, *en;
-    if (!strcmp(player, white.name)){
+    if (!strcmp(player, "white")){
         pl = &white;
         en = &black;
     } else {
@@ -316,7 +323,7 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
         en = &white;
     }
 
-    if (depth >= 5){
+    if (depth >= 7){
         white.MinScore = Astar(Board, size, PlayerToVertex(white), 0);
         black.MinScore = Astar(Board, size, PlayerToVertex(black), size - 1);
 
@@ -326,9 +333,9 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
     }
     if(Winner(white, black, size) != NULL){
         if(!strcmp(player, Winner(white, black, size))){
-            return -400 * (-1 + IsMinimizer * 2);
+            return -400 * (-1 + IsMinimizer * 2) + depth;
         } else {
-            return -400 * (-1 + !IsMinimizer * 2);
+            return -400 * (-1 + !IsMinimizer * 2) + depth;
         }
     }
 
@@ -349,6 +356,19 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
                     max = num;
                 } else if (num < max && IsMinimizer){
                     max = num;
+                }
+            } else {
+                struct vertex u = {.x = v.x + i * (-1 + j), .y = v.y + !i * (-1 + j)};
+                VertexToString(u, size, ver);
+                if (AI_IsMoveValid(Board, size, player, ver, white, black)){
+                    PlayMove(Board, size, player, ver, &white, &black, &History);
+                    num = Minimax(Board, size, en->name, white, black, depth + 1, !IsMinimizer);
+                    Undo(Board, size, &white, &black, &History);
+                    if (num > max && !IsMinimizer){
+                        max = num;
+                    } else if (num < max && IsMinimizer){
+                        max = num;
+                    }
                 }
             }
         }

@@ -41,7 +41,7 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
         int score[4], status, min = 1000, num;
         char ver[4];
         struct player temp;
-        struct vertex v = PlayerToVertex(*p, size), t;
+        struct vertex v = PlayerToVertex(*p), t;
         VertexToString(v, size, ver);
         for (int i = 0; i < 2; i ++){
             for (int j = 0; j < 3; j += 2){
@@ -76,6 +76,98 @@ int PathScore(char* Board, int size, char* player, struct player white, struct p
     }
     
     return *(*Scores + p->y * size + p->x);
+}
+
+int Astar(char* Board, int size, struct vertex start, int goal){
+
+    Listptr openSet = NULL;
+    InitList(&openSet, "");
+    VertexToString(start, size, openSet->data);
+
+    Listptr CameFrom = NULL;
+
+    int* gScore = malloc(size * size * sizeof(int));
+    for(int i = 0; i < size; i++){
+        for(int j = 0; j < size; j++){
+            *(gScore + j * size + i) = 10000;
+        }
+    }
+    *(gScore + start.y * size + start.x) = 0;
+
+    int* fScore = malloc(size * size * sizeof(int));
+    for(int i = 0; i < size; i++){
+        for(int j = 0; j < size; j++){
+            *(fScore + j * size + i) = 10000;
+        }
+    }
+    *(fScore + start.y * size + start.x) = size - 1;
+
+    struct vertex current;
+    char ver[4];
+    while (openSet != NULL){
+        current = StringToVertex(openSet->data, size);
+        int min = *(fScore + current.y * size + current.x);
+        Listptr it = openSet;
+        while(it->next != NULL){
+            struct vertex v = StringToVertex(it->data, size);
+            if(*(fScore + v.y * size + v.x) < min){
+                min = *(fScore + v.y * size + v.x);
+                current = v;
+            }
+            it = it->next;
+        }
+        
+        if(current.y == goal){
+            int res = len(CameFrom);
+            struct vertex v1, v2;
+            for(int i = 1; i < len(CameFrom); i++){
+                v1 = StringToVertex(get(CameFrom, i), size);
+                v2 = StringToVertex(get(CameFrom, i - 1), size);
+                if(!((abs(v1.x - v2.x) == 1 && abs(v1.y - v2.y) == 0) || (abs(v1.x - v2.x) == 0 && abs(v1.y - v2.y) == 1))){
+                    Remove(&CameFrom, i);
+                }
+            }
+            FreeList(&openSet);
+            FreeList(&CameFrom);
+            free(gScore);
+            free(fScore);
+            return res;
+        }
+
+        VertexToString(current, size, ver);
+        int index = find(openSet, ver), flag = 0;
+        Remove(&openSet, index);
+
+        for (int i = 0; i < 2; i ++){
+            for (int j = 0; j < 3; j += 2){
+                struct vertex t = {.x = current.x + i * (-1 + j), .y = current.y + !i * (-1 + j)};
+                if(t.x >= 0 && t.x < size && t.y >= 0 && t.y < size){
+                    VertexToString(t, size, ver);
+                    int tentative_gScore = *(gScore + current.y * size + current.x) + t.x + abs(t.y - goal);
+                    if(tentative_gScore < *(gScore + t.y * size + t.x)){
+                        if(flag == 0){
+                            InsertAtEnd(&CameFrom, ver);
+                            flag = 1;
+                        } else {
+                            Remove(&CameFrom, -1);
+                            InsertAtEnd(&CameFrom, ver);
+                        }
+                        *(gScore + t.y * size + t.x) = tentative_gScore;
+                        *(fScore + t.y * size + t.x) = tentative_gScore + (size - 1 - abs(t.y - goal));
+                        if(find(openSet, ver) == -1){
+                            InsertAtEnd(&openSet, ver);
+                        } 
+                    }
+                }
+            }
+        }
+    }
+    
+    FreeList(&openSet);
+    FreeList(&CameFrom);
+    free(gScore);
+    free(fScore);
+    return -1;
 }
 
 int AI_IsMoveValid(char* Board, int size, char* player, char* vertex, struct player white, struct player black){
@@ -161,15 +253,18 @@ int AI_IsValidWall(char *Board, int size, char *player, char *vertex, char *alig
 }
 
 void AI_GenerateMove(char* Board, int size, char* player, struct player* white, struct player* black, int depth, Listptr* History, char* move){
-    white->MinScore = PathScore(Board, size, white->name, *white, *black, 0, &white->Scores, NULL);
-    black->MinScore = PathScore(Board, size, black->name, *white, *black, 0, &black->Scores, NULL);
+    //white->MinScore = PathScore(Board, size, white->name, *white, *black, 0, &white->Scores, NULL);
+    //black->MinScore = PathScore(Board, size, black->name, *white, *black, 0, &black->Scores, NULL);
+    int b;
     struct player *pl, *en;
     if(!strcmp(player, "white")){
         pl = white;
         en = black;
+        b = 0;
     } else {
         pl = black;
         en = white;
+        b = 1;
     }
     char ver[4] = "";
         
@@ -190,7 +285,9 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                 VertexToString(v, size, ver);
                 res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
                 if(res == 1){
-                    num = *(pl->Scores + ty * size + tx);
+                    //num = *(pl->Scores + ty * size + tx);
+                    num = Astar(Board, size, v, size * b - 1 * b);
+                    printf("x %d y %d num %d\n", v.x, v.y , num);
                     if(num < max && num >= 0){
                         max = num;
                         x = tx;
@@ -201,7 +298,7 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                     VertexToString(u, size, ver);
                     res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
                     if(res == 1){
-                        num = *(pl->Scores + u.y * size + u.x);
+                        num = Astar(Board, size, u, size * b - 1 * b);
                         if(num < max && num >= 0){
                             max = num;
                             x = u.x;

@@ -16,7 +16,7 @@ char* VertexToString(struct vertex v, int size, char* dest){
     return dest;
 }
 
-struct vertex PlayerToVertex(struct player p, int size){
+struct vertex PlayerToVertex(struct player p){
     struct vertex v = {.x = p.x, .y = p.y};
     return v;
 }
@@ -179,7 +179,7 @@ int PlayMove(char* Board, int size, char* player, char* vertex, struct player* w
 
         char mv[80];
         char str[4];
-        VertexToString(PlayerToVertex(*pp, size), size, str);
+        VertexToString(PlayerToVertex(*pp), size, str);
         sprintf(mv, "m %c %s %s", l, str, vertex);
         InsertAtEnd(History, mv);
 

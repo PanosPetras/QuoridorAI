@@ -17,7 +17,7 @@ struct vertex StringToVertex(char*, int);
 
 char* VertexToString(struct vertex, int, char*);
 
-struct vertex PlayerToVertex(struct player, int);
+struct vertex PlayerToVertex(struct player);
 
 int IsOnVertex(struct player, struct vertex);
 

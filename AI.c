@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 int Astar(char* Board, int size, struct vertex start, int goal){
-
     Listptr openSet = NULL;
     InitList(&openSet, "");
     VertexToString(start, size, openSet->data);
@@ -31,6 +30,8 @@ int Astar(char* Board, int size, struct vertex start, int goal){
 
     struct vertex current;
     char ver[4], ver2[4];
+    int d = (2 * size - 1);
+
     while (openSet != NULL){
         current = StringToVertex(openSet->data, size);
         int min = *(fScore + current.y * size + current.x);
@@ -61,7 +62,7 @@ int Astar(char* Board, int size, struct vertex start, int goal){
         for (int i = 0; i < 2; i ++){
             for (int j = 0; j < 3; j += 2){
                 struct vertex t = {.x = current.x + i * (-1 + j), .y = current.y + !i * (-1 + j)};
-                if(t.x >= 0 && t.x < size && t.y >= 0 && t.y < size && *(Board + (2 * size - 1) * (current.y + t.y) + (current.x + t.x)) == ' '){
+                if(t.x >= 0 && t.x < size && t.y >= 0 && t.y < size && *(Board + d * (current.y + t.y) + (current.x + t.x)) == ' ' && *(Board + d * (current.y + t.y) + (current.x + t.x)) == ' '){
                     VertexToString(t, size, ver);
                     int tentative_gScore = *(gScore + current.y * size + current.x) + 1;
                     if(tentative_gScore < *(gScore + t.y * size + t.x)){
@@ -258,7 +259,7 @@ int AlphaBeta(char *Board, int size, char *player, struct player white, struct p
         }
     }
 
-    if (depth >= 6){
+    if (depth >= DEPTH){
         return Astar(Board, size, PlayerToVertex(*en), size * !k - 1 * !k) - Astar(Board, size, PlayerToVertex(*pl), size * k - 1 * k) + depth;
     }
 

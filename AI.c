@@ -198,9 +198,9 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
             VertexToString(v, size, ver);
             res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
             if(res == 1){
-                //num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, v, size * b - 1 * b);
+                // num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, v, size * b - 1 * b);
                 PlayMove(Board, size, player, ver, white, black, History);
-                num = AlphaBeta(Board, size, player, *white, *black, 0, 1, -10000, 10000);
+                num = AlphaBeta(Board, size, en->name, *white, *black, 0, 0, -10000, 10000);
                 Undo(Board, size, white, black, History);
                 printf("Vertex: %s score: %d\n", ver, num);
                 if(num < max){
@@ -213,9 +213,9 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                 VertexToString(u, size, ver);
                 res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
                 if(res == 1){
-                    //num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, u, size * b - 1 * b);
+                    // num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, u, size * b - 1 * b);
                     PlayMove(Board, size, player, ver, white, black, History);
-                    num = AlphaBeta(Board, size, player, *white, *black, 0, 1, -10000, 10000);
+                    num = AlphaBeta(Board, size, en->name, *white, *black, 0, 0, -10000, 10000);
                     Undo(Board, size, white, black, History);
                     if(num < max){
                         max = num;
@@ -231,98 +231,6 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
     PlayMove(Board, size, player, ver, white, black, History);
 
     strcpy(move, ver);
-}
-
-int Minimax(char *Board, int size, char *player, struct player white, struct player black, int depth, int IsMaximizer){
-    struct player *pl, *en;
-    int b;
-    if (!strcmp(player, "white")){
-        pl = &white;
-        en = &black;
-        b = 0;
-    } else {
-        pl = &black;
-        en = &white;
-        b = 1;
-    }
-    if(Winner(white, black, size) != NULL){
-        if(IsMaximizer){
-            if(!strcmp(player, Winner(white, black, size))){
-                return -40 + depth;
-            } else {
-                return 40 + depth;
-            }
-        } else {
-            if(!strcmp(player, Winner(white, black, size))){
-                return 40 + depth;
-            } else {
-                return -40 + depth;
-            }
-        }
-    }
-
-    if (depth >= 6){
-        return Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, PlayerToVertex(*pl), size * b - 1 * b) + depth;
-    }
-
-    char ver[4];
-    Listptr History = NULL;
-    int d = size * 2 - 1;
-    int num, value;
-    
-    if(IsMaximizer){
-        value = 1000;
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                struct vertex v = {.x = pl->x + i * (-1 + j), .y = pl->y + !i * (-1 + j)};
-                VertexToString(v, size, ver);
-                if(PlayMove(Board, size, player, ver, &white, &black, &History) == 1){
-                    num = Minimax(Board, size, en->name, white, black, depth + 1, 0);
-                    Undo(Board, size, &white, &black, &History);
-                    if(value > num){
-                        value = num;
-                    }
-                }
-            }
-        }
-    } else {
-        value = -1000;
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                struct vertex v = {.x = pl->x + i * (-1 + j), .y = pl->y + !i * (-1 + j)};
-                VertexToString(v, size, ver);
-                if(PlayMove(Board, size, player, ver, &white, &black, &History) == 1){
-                    num = Minimax(Board, size, en->name, white, black, depth + 1, 1);
-                    Undo(Board, size, &white, &black, &History);
-                    if(value < num){
-                        value = num;
-                    }
-                }
-            }
-        }
-    }
-    // char alignments[2][11] = {"horizontal", "vertical"};
-
-    // for (int i = 0; i < size - 1; i++){
-    //     for (int j = 0; j < size - 1; j++){
-    //         for(int k = 0; k < 2; k++){
-    //             struct vertex v = {.x = i, .y = j};
-    //             VertexToString(v, size, ver);
-    //             if(AI_IsValidWall(Board, size, player, ver, alignments[k], white, black) == 1){
-    //                 PlayWall(Board, size, player, ver, alignments[k], &white, &black, &History);
-    //                 num = Minimax(Board, size, en->name, white, black, depth + 1, !IsMinimizer);
-    //                 Undo(Board, size, &white, &black, &History);
-    //                 if (num > max && !IsMinimizer){
-    //                     max = num;
-    //                 } else if (num < max && IsMinimizer){
-    //                     max = num;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    return value;
 }
 
 int AlphaBeta(char *Board, int size, char *player, struct player white, struct player black, int depth, int IsMaximizer, int a, int b){

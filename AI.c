@@ -200,7 +200,7 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
             if(res == 1){
                 //num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, v, size * b - 1 * b);
                 PlayMove(Board, size, player, ver, white, black, History);
-                num = Minimax(Board, size, player, *white, *black, 0, 1);
+                num = AlphaBeta(Board, size, player, *white, *black, 0, 1, -10000, 10000);
                 Undo(Board, size, white, black, History);
                 printf("Vertex: %s score: %d\n", ver, num);
                 if(num < max){
@@ -215,7 +215,7 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                 if(res == 1){
                     //num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, u, size * b - 1 * b);
                     PlayMove(Board, size, player, ver, white, black, History);
-                    num = Minimax(Board, size, player, *white, *black, 0, 1);
+                    num = AlphaBeta(Board, size, player, *white, *black, 0, 1, -10000, 10000);
                     Undo(Board, size, white, black, History);
                     if(num < max){
                         max = num;
@@ -321,6 +321,90 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
     //         }
     //     }
     // }
+
+    return value;
+}
+
+int AlphaBeta(char *Board, int size, char *player, struct player white, struct player black, int depth, int IsMaximizer, int a, int b){
+    struct player *pl, *en;
+    int k;
+    if (!strcmp(player, "white")){
+        pl = &white;
+        en = &black;
+        k = 0;
+    } else {
+        pl = &black;
+        en = &white;
+        k = 1;
+    }
+    if(Winner(white, black, size) != NULL){
+        if(IsMaximizer){
+            if(!strcmp(player, Winner(white, black, size))){
+                return -40 + depth;
+            } else {
+                return 40 + depth;
+            }
+        } else {
+            if(!strcmp(player, Winner(white, black, size))){
+                return 40 + depth;
+            } else {
+                return -40 + depth;
+            }
+        }
+    }
+
+    if (depth >= 6){
+        return Astar(Board, size, PlayerToVertex(*en), size * !k - 1 * !k) - Astar(Board, size, PlayerToVertex(*pl), size * k - 1 * k) + depth;
+    }
+
+    char ver[4];
+    Listptr History = NULL;
+    int d = size * 2 - 1;
+    int num, value;
+    
+    if(IsMaximizer){
+        value = 1000;
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                struct vertex v = {.x = pl->x + i * (-1 + j), .y = pl->y + !i * (-1 + j)};
+                VertexToString(v, size, ver);
+                if(PlayMove(Board, size, player, ver, &white, &black, &History) == 1){
+                    num = AlphaBeta(Board, size, en->name, white, black, depth + 1, 0, a, b);
+                    Undo(Board, size, &white, &black, &History);
+                    if(value > num){
+                        value = num;
+                    }
+                    if(value >= b){
+                        break;
+                    }
+                    if(a < value){
+                        a = value;
+                    }
+                }
+            }
+        }
+    } else {
+        value = -1000;
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                struct vertex v = {.x = pl->x + i * (-1 + j), .y = pl->y + !i * (-1 + j)};
+                VertexToString(v, size, ver);
+                if(PlayMove(Board, size, player, ver, &white, &black, &History) == 1){
+                    num = AlphaBeta(Board, size, en->name, white, black, depth + 1, 1, a, b);
+                    Undo(Board, size, &white, &black, &History);
+                    if(value < num){
+                        value = num;
+                    }
+                    if(value >= a){
+                        break;
+                    }
+                    if(b < value){
+                        b = value;
+                    }
+                }
+            }
+        }
+    }
 
     return value;
 }

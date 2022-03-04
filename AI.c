@@ -198,11 +198,9 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
             VertexToString(v, size, ver);
             res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
             if(res == 1){
-                // num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, v, size * b - 1 * b);
                 PlayMove(Board, size, player, ver, white, black, History);
                 num = AlphaBeta(Board, size, en->name, *white, *black, 0, 0, -10000, 10000);
                 Undo(Board, size, white, black, History);
-                printf("Vertex: %s score: %d\n", ver, num);
                 if(num < max){
                     max = num;
                     x = tx;
@@ -213,7 +211,6 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                 VertexToString(u, size, ver);
                 res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
                 if(res == 1){
-                    // num = Astar(Board, size, PlayerToVertex(*en), size * !b - 1 * !b) - Astar(Board, size, u, size * b - 1 * b);
                     PlayMove(Board, size, player, ver, white, black, History);
                     num = AlphaBeta(Board, size, en->name, *white, *black, 0, 0, -10000, 10000);
                     Undo(Board, size, white, black, History);
@@ -229,7 +226,7 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
     struct vertex v = {.x = x, .y = y};
     VertexToString(v, size, ver);
     PlayMove(Board, size, player, ver, white, black, History);
-
+    
     strcpy(move, ver);
 }
 

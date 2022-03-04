@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "AI.h"
 
 struct vertex StringToVertex(char* s, int size){
     lowercase(s);
@@ -237,6 +238,11 @@ int PlayWall(char* Board, int size, char* player, char* vertex, char* alignment,
         char mv[80];
         sprintf(mv, "w %c %s %s", l, vertex, alignment);
         InsertAtEnd(History, mv);
+
+        if(Astar(Board, size, PlayerToVertex(*white), 0) == -1 || Astar(Board, size, PlayerToVertex(*black), size - 1) == -1){
+            Undo(Board, size, white, black, History);
+            return 0;
+        }
 
         return 1;
     }

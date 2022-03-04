@@ -5,79 +5,6 @@
 #include <string.h>
 #include <stdio.h>
 
-int PathScore(char* Board, int size, char* player, struct player white, struct player black, int depth, int** Scores, Listptr History){
-    int b;
-    struct player* p;
-    if(!strcmp(player, "white")){
-        p = &white;
-        b = 0;
-    } else {
-        p = &black;
-        b = 1;
-    }
-
-    if(depth == 0){
-        if(*Scores != NULL){
-            free(*Scores);
-            *Scores = NULL;
-        }
-        *Scores = malloc(size * size * sizeof(int));
-        for (int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                *(*Scores + i * size + j) = -10;
-            }
-        }
-        for (int i = 0; i < size; i++){
-            *(*Scores + i + b * size * (size - 1)) = 0;
-        }
-
-        History = NULL;
-    }
-
-
-    if(*(*Scores + p->y * size + p->x) == -10){
-        *(*Scores + p->y * size + p->x) = -20;
-
-        int score[4], status, min = 1000, num;
-        char ver[4];
-        struct player temp;
-        struct vertex v = PlayerToVertex(*p), t;
-        VertexToString(v, size, ver);
-        for (int i = 0; i < 2; i ++){
-            for (int j = 0; j < 3; j += 2){
-                t.x = v.x + i * (-1 + j);
-                t.y = v.y + !i * (-1 + j);
-                VertexToString(t, size, ver);
-                status = PlayMove(Board, size, player, ver, &white, &black, &History);
-                
-                if(status == 1){
-                    num = PathScore(Board, size, player, white, black, depth + 1, Scores, History);
-
-                    Undo(Board, size, &white, &black, &History);
-                } else if(status == -3){
-                    num = 200;
-                } else {
-                    num = -1;
-                }
-                if(num < min && num >= 0){
-                    min = num;
-                }
-            }
-        }
-
-        if(min != 1000){
-            *(*Scores + p->y * size + p->x) = min + 1;
-        } else {
-            *(*Scores + p->y * size + p->x) = -1;
-        }
-
-    } else if(*(*Scores + p->y * size + p->x) == -20){
-        return -1;
-    }
-    
-    return *(*Scores + p->y * size + p->x);
-}
-
 int Astar(char* Board, int size, struct vertex start, int goal){
 
     Listptr openSet = NULL;
@@ -248,8 +175,6 @@ int AI_IsValidWall(char *Board, int size, char *player, char *vertex, char *alig
 }
 
 void AI_GenerateMove(char* Board, int size, char* player, struct player* white, struct player* black, int depth, Listptr* History, char* move){
-    //white->MinScore = PathScore(Board, size, white->name, *white, *black, 0, &white->Scores, NULL);
-    //black->MinScore = PathScore(Board, size, black->name, *white, *black, 0, &black->Scores, NULL);
     int b;
     struct player *pl, *en;
     lowercase(player);
@@ -262,59 +187,53 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
         en = white;
         b = 1;
     }
-    char ver[4] = "";
+    char ver[6] = "";
 
-    //if(pl->MinScore < en->MinScore){
-        int max = 1000, x, y, num, tx, ty, res;
-        for (int i = 0; i < 2; i ++){
-            for (int j = 0; j < 3; j += 2){
-                tx = pl->x + i * (-1 + j);
-                ty = pl->y + !i * (-1 + j);
-                struct vertex v = {.x = tx, .y = ty};
-                VertexToString(v, size, ver);
+    int max = 1000, x, y, num, tx, ty, res;
+    for (int i = 0; i < 2; i ++){
+        for (int j = 0; j < 3; j += 2){
+            tx = pl->x + i * (-1 + j);
+            ty = pl->y + !i * (-1 + j);
+            struct vertex v = {.x = tx, .y = ty};
+            VertexToString(v, size, ver);
+            res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
+            if(res == 1){
+                num = Astar(Board, size, v, size * b - 1 * b);
+                // PlayMove(Board, size, player, ver, white, black, History);
+                // num = Minimax(Board, size, player, *white, *black, 0, 1);
+                // Undo(Board, size, white, black, History);
+                // printf("Vertex: %s score: %d\n", ver, num);
+                if(num < max){
+                    max = num;
+                    x = tx;
+                    y = ty;
+                }
+            } else if(res == -3){
+                struct vertex u = {.x = tx + i * (-1 + j), .y = ty + !i * (-1 + j)};
+                VertexToString(u, size, ver);
                 res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
                 if(res == 1){
-                    num = Astar(Board, size, v, size * b - 1 * b);
+                    num = Astar(Board, size, u, size * b - 1 * b);
                     // PlayMove(Board, size, player, ver, white, black, History);
                     // num = Minimax(Board, size, player, *white, *black, 0, 1);
                     // Undo(Board, size, white, black, History);
-                    // printf("x %d y %d num %d\n", v.x, v.y , num);
-                    if(num < max){
+                    if(num < max && num >= 0){
                         max = num;
-                        x = tx;
-                        y = ty;
-                    }
-                } else if(res == -3){
-                    struct vertex u = {.x = tx + i * (-1 + j), .y = ty + !i * (-1 + j)};
-                    VertexToString(u, size, ver);
-                    res = AI_IsMoveValid(Board, size, player, ver, *white, *black);
-                    if(res == 1){
-                        num = Astar(Board, size, u, size * b - 1 * b);
-                        // PlayMove(Board, size, player, ver, white, black, History);
-                        // num = Minimax(Board, size, player, *white, *black, 0, 1);
-                        // Undo(Board, size, white, black, History);
-                        if(num < max && num >= 0){
-                            max = num;
-                            x = u.x;
-                            y = u.y;
-                        }
+                        x = u.x;
+                        y = u.y;
                     }
                 }
             }
         }
-        struct vertex v = {.x = x, .y = y};
-        VertexToString(v, size, ver);
-        PlayMove(Board, size, player, ver, white, black, History);
-
-    // } else {
-
-    // }
+    }
+    struct vertex v = {.x = x, .y = y};
+    VertexToString(v, size, ver);
+    PlayMove(Board, size, player, ver, white, black, History);
 
     strcpy(move, ver);
 }
 
 int Minimax(char *Board, int size, char *player, struct player white, struct player black, int depth, int IsMinimizer){
-    printf("Hey somes wrong%d\n", depth);
     struct player *pl, *en;
     if (!strcmp(player, "white")){
         pl = &white;
@@ -332,12 +251,19 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
 
         return res;
     }
-    char* win = Winner(white, black, size);
-    if(win != NULL){
-        if(!strcmp(player, win)){
-            return -400 * (-1 + IsMinimizer * 2) + depth;
+    if(Winner(white, black, size) != NULL){
+        if(IsMinimizer){
+            if(!strcmp(player, Winner(white, black, size))){
+                return -400 + depth;
+            } else {
+                return 400 + depth;
+            }
         } else {
-            return -400 * (-1 + !IsMinimizer * 2) + depth;
+            if(!strcmp(player, Winner(white, black, size))){
+                return 400 + depth;
+            } else {
+                return -400 + depth;
+            }
         }
     }
 
@@ -359,10 +285,10 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
                 } else if (num < max && IsMinimizer){
                     max = num;
                 }
-            } else {
+            } else if (AI_IsMoveValid(Board, size, player, ver, white, black) == -3){
                 struct vertex u = {.x = v.x + i * (-1 + j), .y = v.y + !i * (-1 + j)};
                 VertexToString(u, size, ver);
-                if (AI_IsMoveValid(Board, size, player, ver, white, black)){
+                if (AI_IsMoveValid(Board, size, player, ver, white, black) == 1){
                     PlayMove(Board, size, player, ver, &white, &black, &History);
                     num = Minimax(Board, size, en->name, white, black, depth + 1, !IsMinimizer);
                     Undo(Board, size, &white, &black, &History);

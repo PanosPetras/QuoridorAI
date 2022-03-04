@@ -35,7 +35,7 @@ int HandleCommand(char* Input, char** Board, int* size, struct player* white, st
 	token = strtok(Input, " ");
 
 	if(!strcmp(Input, "name")){
-		printf("= Panzerkampfwagen VI Tiger Ausführung B\n\n");
+		printf("= Panzerkampfwagen VI Tiger Ausfuhrung B(Sonderkraftfahrzeug 182)\n\n");
 	} else if(!strcmp(Input, "known_command")) {
 		token = strtok(NULL, " ");
 		if(token != NULL){

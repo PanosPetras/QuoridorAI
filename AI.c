@@ -278,7 +278,7 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
                     // PlayMove(Board, size, player, ver, white, black, History);
                     // num = Minimax(Board, size, player, *white, *black, 0, 1);
                     // Undo(Board, size, white, black, History);
-                    printf("x %d y %d num %d\n", v.x, v.y , num);
+                    // printf("x %d y %d num %d\n", v.x, v.y , num);
                     if(num < max){
                         max = num;
                         x = tx;
@@ -314,6 +314,7 @@ void AI_GenerateMove(char* Board, int size, char* player, struct player* white, 
 }
 
 int Minimax(char *Board, int size, char *player, struct player white, struct player black, int depth, int IsMinimizer){
+    printf("Hey somes wrong%d\n", depth);
     struct player *pl, *en;
     if (!strcmp(player, "white")){
         pl = &white;
@@ -331,8 +332,9 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
 
         return res;
     }
-    if(Winner(white, black, size) != NULL){
-        if(!strcmp(player, Winner(white, black, size))){
+    char* win = Winner(white, black, size);
+    if(win != NULL){
+        if(!strcmp(player, win)){
             return -400 * (-1 + IsMinimizer * 2) + depth;
         } else {
             return -400 * (-1 + !IsMinimizer * 2) + depth;
@@ -373,26 +375,26 @@ int Minimax(char *Board, int size, char *player, struct player white, struct pla
             }
         }
     }
-    char alignments[2][11] = {"horizontal", "vertical"};
+    // char alignments[2][11] = {"horizontal", "vertical"};
 
-    for (int i = 0; i < size - 1; i++){
-        for (int j = 0; j < size - 1; j++){
-            for(int k = 0; k < 2; k++){
-                struct vertex v = {.x = i, .y = j};
-                VertexToString(v, size, ver);
-                if(AI_IsValidWall(Board, size, player, ver, alignments[k], white, black) == 1){
-                    PlayWall(Board, size, player, ver, alignments[k], &white, &black, &History);
-                    num = Minimax(Board, size, en->name, white, black, depth + 1, !IsMinimizer);
-                    Undo(Board, size, &white, &black, &History);
-                    if (num > max && !IsMinimizer){
-                        max = num;
-                    } else if (num < max && IsMinimizer){
-                        max = num;
-                    }
-                }
-            }
-        }
-    }
+    // for (int i = 0; i < size - 1; i++){
+    //     for (int j = 0; j < size - 1; j++){
+    //         for(int k = 0; k < 2; k++){
+    //             struct vertex v = {.x = i, .y = j};
+    //             VertexToString(v, size, ver);
+    //             if(AI_IsValidWall(Board, size, player, ver, alignments[k], white, black) == 1){
+    //                 PlayWall(Board, size, player, ver, alignments[k], &white, &black, &History);
+    //                 num = Minimax(Board, size, en->name, white, black, depth + 1, !IsMinimizer);
+    //                 Undo(Board, size, &white, &black, &History);
+    //                 if (num > max && !IsMinimizer){
+    //                     max = num;
+    //                 } else if (num < max && IsMinimizer){
+    //                     max = num;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     return max;
 }
